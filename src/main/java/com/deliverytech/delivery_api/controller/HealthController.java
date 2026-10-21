@@ -10,7 +10,7 @@ import java.util.Map;
  
 /**
  * Controller responsável pelos endpoints de monitoramento da aplicação
- * Demonstra o uso de recursos modernos do Java 21
+ * Demonstra o uso de recursos modernos do Java 25
  */
 @RestController
 public class HealthController {
@@ -56,7 +56,7 @@ public class HealthController {
         return ResponseEntity.ok(appInfo);
     }  
  /**
-     * Record para demonstrar recurso do Java 14+ (disponível no JDK 21)
+     * Record para demonstrar recurso do Java 16+
      * Records são classes imutáveis ideais para DTOs
      */
     public record AppInfo(

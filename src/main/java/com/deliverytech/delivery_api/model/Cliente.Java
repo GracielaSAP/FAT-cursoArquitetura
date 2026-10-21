@@ -1,4 +1,4 @@
-package com.deliverytech.model;
+package com.deliverytech.delivery_api.model;
 
 public class Cliente {
     private String nome;

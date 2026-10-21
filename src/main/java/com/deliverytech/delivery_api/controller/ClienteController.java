@@ -33,7 +33,7 @@ public class ClienteController {
     @GetMapping("/clientes")
     public List<Cliente> getClientes() {
         List<Cliente> clientes = new ArrayList<>();
-        clientes.add(new Cliente("João", "Silva"));
+        clientes.add(new Cliente("José", "Silva"));
         clientes.add(new Cliente("Maria", "Souza"));
         clientes.add(new Cliente("Pedro", "Oliveira"));
         return clientes;
