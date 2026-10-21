@@ -4,7 +4,7 @@ API REST em desenvolvimento para um sistema de delivery, construída com Java e 
 
 ## 🚀 Tecnologias
 
-- **Java 25 LTS** — linguagem de programação
+- **Java 21 LTS** — linguagem de programação
 - **Spring Boot 3.2.x** — framework para desenvolvimento da aplicação
 - **Spring Web** — criação de endpoints REST
 - **Spring Data JPA** — persistência e acesso a dados
@@ -24,7 +24,7 @@ O projeto utiliza recursos modernos da linguagem Java para explorar funcionalida
 
 Antes de executar a aplicação, certifique-se de ter instalado:
 
-- JDK 25
+- JDK 21
 - Git
 - Maven Wrapper incluído no projeto (`mvnw`)
 
@@ -79,12 +79,12 @@ Após a inicialização, a API estará disponível em:
 | Porta padrão | `8080` |
 | Banco de dados | H2 em memória |
 | Perfil de execução | `development` |
-| Java | `25` |
+| Java | `21` |
 
 > **Observação:** o banco H2 em memória é reinicializado conforme o ciclo de vida da aplicação. Os dados não são persistidos após o encerramento do processo.
 
 ## 👨‍💻 Desenvolvedor
 Graciela Pastrolin
 
-Projeto desenvolvido como parte dos estudos em **Arquitetura de Sistemas**, utilizando Java 25 e Spring Boot.
+Projeto desenvolvido como parte dos estudos em **Arquitetura de Sistemas**, utilizando Java 21 e Spring Boot.
 
