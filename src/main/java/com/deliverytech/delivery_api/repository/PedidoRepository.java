@@ -1,81 +1,92 @@
 package com.deliverytech.delivery_api.repository;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+
+import com.deliverytech.delivery_api.enums.StatusPedido;
 import com.deliverytech.delivery_api.model.Cliente;
 import com.deliverytech.delivery_api.model.Pedido;
 
-import com.deliverytech.delivery_api.enums.StatusPedido;
+/* Anotação não importa pois o JPA já interpreta 
+automaticamente que não é necessarioa realizar a anotação @Repository
 
-import org.springframework.stereotype.Repository;
-import org.springframework.data.repository.query.Param;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
-import java.util.Optional;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
-/*Anotação não importa pois o HPA já interpreta
-automaticamente que não é necessaria realizar a anaotação @Repository
-
-Diferença entre com a anaotação ou sem, vem da clareza semântica
-eplicita é a outra se trata de maneira implícita (pelo nome/extensão)
+Diferença entre com a anotação ou sem, vem da clareza semânica
+explicita é a outra se trata de maneira implícita(pelo nome/extensão)
 porém não se faz necessário a utilização
 
 */
-
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
-    
-    //buscar pedido por cliente
+
+
+    // Buscar pedidos por cliente
     List<Pedido> findByClienteOrderByDataPedidoDesc(Cliente cliente);
 
-    //buscar pedidos por cliente ID
-    List<Pedido> findByClienteIdOrderByDataPedidoDesc(Long clienteId);
+    // Buscar pedidos por cliente ID
+    Page<Pedido> findByClienteIdOrderByDataPedidoDesc(Long clienteId, Pageable pageable);
 
     /*
-    busca pedidos por cliente ID já trazendo os itens junto (fetch join).
-    usamos DISTINCT porque o JOIN FETCH com uma coleção pode gerar
-    linhas repetidas do esmo pedido (uma por item), e o DISTINCT 
-    remove essas duplicadas no resultado final.
-     */
-    @Query("SELECT DISTINCT p FROM Pedido p JOIN FETCH p.itens WHERE p.cliente.id = :clienteId ORDER BY p.dataPedido DESC")
-    List<Pedido> findByClienteIdWithItens(@Param("clienteId") Long clienteId);
+    Buscar pedidos por cliente ID já trazendo os itens junto (fetch join).
+    Usamos DISTINCT porque o JOIN FETCH com uma coleção pode gerar
+    linhas repetidas do mesmo pedido (uma por item), e o DISTINCT
+    remove essas duplicatas no resultado final.
+    */
+    @Query("SELECT DISTINCT p FROM Pedido p LEFT JOIN FETCH p.itens " +
+           "WHERE p.cliente.id = :clienteId ORDER BY p.dataPedido DESC")
+    List<Pedido> findByClienteIdComItens(@Param("clienteId") Long clienteId);
 
-    //buscar pedidos por status
-    List<Pedido> findByStatusPedidoOrderByDataPedidoDesc(StatusPedido statusPedido);   
+    // Buscar por status
+    List<Pedido> findByStatusPedidoOrderByDataPedidoDesc(StatusPedido statusPedido);
 
-    //buscar por numero do pedido
-    Pedido findByNumeroPedido(String numeroPedido);
+
+    // Buscar por número do pedido
+    List<Pedido> findByStatusPedidoInOrderByDataPedidoAsc(Collection<StatusPedido> status);
+
+    // Buscar por número do pedido — Optional evita retorno null silencioso
+    Optional<Pedido> findByNumeroPedido(String numeroPedido);
+
+    // Útil para validar unicidade do número antes de salvar, se necessário
+    boolean existsByNumeroPedido(String numeroPedido);
 
     /*
-    bucar pedido por ID já trazendo os itens junto (FETCH JOIN).
-    isso evita o LazyInitializationException ao serializar o pedido em Json,
+    Buscar pedido por ID já trazendo os itens junto (fetch join).
+    Isso evita o LazyInitializationException ao serializar o pedido em JSON,
     já que a coleção "itens" é carregada dentro da própria consulta,
     ainda dentro da transação.
     */
-    @Query ("SELECT p FROM Pedido p LEFT JOIN FETCH p.itens WHERE p.id = :id")
-    Optional<Pedido> findByIdWithItens(@Param("id") Long id);
+    @Query("SELECT p FROM Pedido p LEFT JOIN FETCH p.itens WHERE p.id = :id")
+    Optional<Pedido> findByIdComItens(@Param("id") Long id);
 
-    // buscar pedidos por período genérico
+    // Buscar pedidos por período genérico
     List<Pedido> findByDataPedidoBetweenOrderByDataPedidoDesc(LocalDateTime inicio, LocalDateTime fim);
- 
-    // buscar pedidos por restaurante
+
+    // Buscar pedidos por restaurante
     @Query("SELECT p FROM Pedido p WHERE p.restaurante.id = :restauranteId ORDER BY p.dataPedido DESC")
     List<Pedido> findByRestauranteId(@Param("restauranteId") Long restauranteId);
- 
-    // relatório - pedidos por status
+
+    // Buscar pedidos de um cliente em um status específico
+    List<Pedido> findByClienteIdAndStatusPedidoOrderByDataPedidoDesc(Long clienteId, StatusPedido statusPedido);
+
+    // Relatório - pedidos por status
     @Query("SELECT p.statusPedido, COUNT(p) FROM Pedido p GROUP BY p.statusPedido")
     List<Object[]> countPedidosByStatus();
- 
-    // pedidos pendentes (para dashboard)
+
+    // Pedidos pendentes (para dashboard)
     @Query("SELECT p FROM Pedido p WHERE p.statusPedido IN ('PENDENTE', 'CONFIRMADO', 'PREPARANDO') " +
            "ORDER BY p.dataPedido ASC")
     List<Pedido> findPedidosPendentes();
- 
-    // CORREÇÃO: buscar pedidos de um dia específico usando os parâmetros informados
+
+    // CORREÇÃO: Buscar pedidos de um dia específico usando os parâmetros informados
     @Query("SELECT p FROM Pedido p WHERE p.dataPedido >= :inicioDia AND p.dataPedido <= :fimDia ORDER BY p.dataPedido DESC")
     List<Pedido> findPedidosDoDia(
             @Param("inicioDia") LocalDateTime inicioDia,
-            @Param("fimDia") LocalDateTime fimDia);    
-}
+            @Param("fimDia") LocalDateTime fimDia);
 
+}

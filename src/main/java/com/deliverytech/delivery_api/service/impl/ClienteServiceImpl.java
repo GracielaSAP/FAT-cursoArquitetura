@@ -8,11 +8,12 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import com.deliverytech.delivery_api.dto.req.ClienteReqDTO;
 import com.deliverytech.delivery_api.dto.res.ClienteResDTO;
+import com.deliverytech.delivery_api.exeption.BusinessException;
+import com.deliverytech.delivery_api.exeption.EntityNotFoundException;
 import com.deliverytech.delivery_api.model.Cliente;
 import com.deliverytech.delivery_api.repository.ClienteRepository;
 import com.deliverytech.delivery_api.service.ClienteService;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional 
 public class ClienteServiceImpl implements ClienteService {
-    
+ 
     @Autowired
     private ClienteRepository clienteRepository;
 
@@ -31,23 +32,24 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     public ClienteResDTO cadastrarCliente(ClienteReqDTO dto) {
-        // regra de negocio validação de email unico
+        // regra de negocios validação de email unico
         if (clienteRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Email já cadastrado:" + dto.getEmail());
+            throw new BusinessException("Email já cadastrado: " + dto.getEmail());
         }
-   
-        // conversão de DTO para entidade 
-        Cliente cliente = modelMapper.map(dto, Cliente.class);
-        cliente.setAtivo(true); // define o cliente como ativo por padrão
 
-        // salvar o cliente no banco de dados
+        // convertendo o DTO em Entidade
+        Cliente cliente = modelMapper.map(dto, Cliente.class);
+        cliente.setAtivo(true);
+
+        //Salvamos cliente no banco
+
         Cliente clienteSalvo = clienteRepository.save(cliente);
 
-        // retornar o cliente salvo como DTO de resposta
+        // retornar o nosso DTO de resposta
         return modelMapper.map(clienteSalvo, ClienteResDTO.class);
     }
-	
-	@Override
+
+    @Override
     @Transactional(readOnly = true)
     public ClienteResDTO buscarClientePorId(Long id) {
         Cliente cliente = clienteRepository.findById(id)
@@ -73,7 +75,7 @@ public class ClienteServiceImpl implements ClienteService {
         // Validar email único (se mudou)
         if (!cliente.getEmail().equals(dto.getEmail()) &&
             clienteRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Email já cadastrado: " + dto.getEmail());
+            throw new BusinessException("Email já cadastrado: " + dto.getEmail());
         }
 
         // Atualizar dados
