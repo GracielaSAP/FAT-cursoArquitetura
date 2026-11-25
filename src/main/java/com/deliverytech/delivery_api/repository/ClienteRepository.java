@@ -1,5 +1,6 @@
 package com.deliverytech.delivery_api.repository;
 
+import com.deliverytech.delivery_api.enums.StatusPedido;
 import com.deliverytech.delivery_api.model.Cliente;
 
 import org.springframework.stereotype.Repository;
@@ -26,5 +27,17 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
 
     //verificar se email já existe
     boolean existsByEmail(String email);
-    
+   
+	// busca customizada de clientes por status ativo
+    @Query("SELECT c FROM Cliente c JOIN c.pedidos p WHERE p.statusPedido = :status")
+    List<Cliente> findClientesComPedidosAtivos(@Param("status") StatusPedido status);
+
+    // Query customizada para buscar clientes por endereço usando JPQL
+    @Query("SELECT c FROM Cliente c WHERE c.endereco LIKE %:endereco")
+    List<Cliente> findClientesPorEndereco(@Param("endereco") String endereco);
+
+    // Query customizada para contar o número de clientes
+    @Query("SELECT COUNT(c) FROM Cliente c")
+    long countClientes();
+
 }

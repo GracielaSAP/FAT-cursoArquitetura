@@ -11,6 +11,4 @@ public class StatusPedidoReqDTO {
     public StatusPedido getStatus() { return status;}
     public void setStatus(StatusPedido status) { this.status = status;}
 
-    
-    
 }
