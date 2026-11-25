@@ -1,5 +1,6 @@
 package com.deliverytech.delivery_api.dto.req;
 
+
 import jakarta.validation.constraints.*;
 
 public class ClienteReqDTO {
@@ -22,11 +23,14 @@ public class ClienteReqDTO {
     que apenas a validade de determinadas entradas ocorram no sistema, podendo ser utilizado
     para busca
     */
-
     @Pattern (regexp = "^[0-9]{10,11}$", message = "Telefone deve conter apenas digitos e ter DDD + Telefone")
     private String telefone;
 
     @NotBlank(message = "Endereço é obrigatório")
+    /*
+    Através das Anotation@Schema usamos para gerar
+    descrições de exemplo de uso dos nosso DTO
+     */
     @Size(max = 200, message = "O endereço deve ter entre 2 e 200 caracteres")
     private String endereco;
 
